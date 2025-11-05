@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Divyashreeparvati.github.io/art_gallery/",
+  "homepage": "https://github.com/Food-Delivery-Microservices/art_gallery",
   "scripts": {
     "dev": "vite",
     "deploy": "gh-pages -d dist",
