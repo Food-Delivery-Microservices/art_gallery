@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const categories = [
@@ -15,8 +14,6 @@ const categories = [
 ];
 
 const CategoryFilters = () => {
-  const [activeCategory, setActiveCategory] = useState("Shop All");
-
   return (
     <div className="w-full bg-muted/30 border-y border-border">
       <div className="container mx-auto px-4 py-6">
@@ -24,13 +21,8 @@ const CategoryFilters = () => {
           {categories.map((category) => (
             <Button
               key={category}
-              variant={activeCategory === category ? "default" : "outline"}
-              onClick={() => setActiveCategory(category)}
-              className={`rounded-full transition-all ${
-                activeCategory === category
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background hover:bg-accent"
-              }`}
+              variant="outline"
+              className="rounded-full bg-background hover:bg-accent cursor-default"
             >
               {category}
             </Button>

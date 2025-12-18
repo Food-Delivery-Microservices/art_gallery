@@ -1,73 +1,76 @@
+import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import artwork1 from "@/assets/artwork-1.jpg";
-import artwork2 from "@/assets/artwork-2.jpg";
-import artwork3 from "@/assets/artwork-3.jpg";
-import artwork4 from "@/assets/artwork-4.jpg";
-import artwork5 from "@/assets/artwork-5.jpg";
-import artwork6 from "@/assets/artwork-6.jpg";
+import { useNavigate } from "react-router-dom";
+import { artworkApi } from "@/services/api.service";
 
-const artworks = [
-  {
-    id: 1,
-    image: artwork1,
-    title: "Abstract Harmony",
-    artist: "Elena Rodriguez",
-    price:  "\u20B9" + "12,200",
-    category: "Abstract",
-  },
-  {
-    id: 2,
-    image: artwork2,
-    title: "Mountain Dreams",
-    artist: "David Chen",
-    price:  "\u20B9" + "13000",
-    category: "Landscape",
-  },
-  {
-    id: 3,
-    image: artwork3,
-    title: "Contemporary Portrait",
-    artist: "Sarah Mitchell",
-    price:  "\u20B9" + "14200",
-    category: "Figurative",
-  },
-  {
-    id: 4,
-    image: artwork4,
-    title: "Urban Expression",
-    artist: "Marcus Johnson",
-    price:  "\u20B9" + "15600",
-    category: "Expressionism",
-  },
-  {
-    id: 5,
-    image: artwork5,
-    title: "Floral Symphony",
-    artist: "Isabella Romano",
-    price:  "\u20B9" + "18900",
-    category: "Flowers",
-  },
-  {
-    id: 6,
-    image: artwork6,
-    title: "Geometric Serenity",
-    artist: "Alex Turner",
-    price:  "\u20B9" + "17800",
-    category: "Abstract",
-  },
-];
+interface ArtworkItem {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  image_url: string;
+  thumbnail_url: string;
+  ts: number;
+}
 
 const ArtworkGrid = () => {
+  const rupee = "₹";
+  const navigate = useNavigate();
+  const [artworks, setArtworks] = useState<ArtworkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchArtworks = async () => {
+      try {
+        setLoading(true);
+        const response = await artworkApi.getAll({}, { limit: 50 });
+        setArtworks(response.items || []);
+      } catch (err) {
+        console.error("Failed to fetch artworks:", err);
+        setError("Failed to load artworks");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtworks();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-muted-foreground">Loading artworks...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <p className="text-destructive">{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+          <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground font-serif tracking-tight">
             Experience the Joy of Living with Original Art
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          </h3>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-light tracking-wide">
             Discover unique pieces from talented artists around the world
           </p>
         </div>
@@ -77,10 +80,11 @@ const ArtworkGrid = () => {
             <Card
               key={artwork.id}
               className="group overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer"
+              onClick={() => navigate(`/artwork/${artwork.id}`)}
             >
               <div className="relative aspect-[3/4] overflow-hidden bg-muted">
                 <img
-                  src={artwork.image}
+                  src={artwork.thumbnail_url || artwork.image_url}
                   alt={artwork.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -93,18 +97,22 @@ const ArtworkGrid = () => {
                 </Button>
               </div>
               <div className="p-4">
-                <div className="mb-2">
-                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                    {artwork.category}
-                  </span>
-                </div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">
                   {artwork.title}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-3">by {artwork.artist}</p>
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  {artwork.description}
+                </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-primary">{artwork.price}</span>
-                  <Button size="sm" variant="outline">
+                  <span className="text-xl font-bold text-primary">{rupee}{artwork.price}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/artwork/${artwork.id}`);
+                    }}
+                  >
                     View Details
                   </Button>
                 </div>
