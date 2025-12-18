@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -24,8 +24,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">A</span>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 flex items-center justify-center shadow-md">
+                <Palette className="w-5 h-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-foreground">ArtGallery</span>
             </div>

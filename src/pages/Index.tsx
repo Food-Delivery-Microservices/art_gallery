@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import HeroCarousel from "@/components/HeroCarousel";
-// import CategoryFilters from "@/components/CategoryFilters";
+import CategoryFilters from "@/components/CategoryFilters";
 import ArtworkGrid from "@/components/ArtworkGrid";
 import Footer from "@/components/Footer";
 
@@ -10,7 +10,7 @@ const Index = () => {
       <Navigation />
       <main>
         <HeroCarousel />
-        {/* <CategoryFilters /> */}
+        <CategoryFilters />
         <ArtworkGrid />
       </main>
       <Footer />

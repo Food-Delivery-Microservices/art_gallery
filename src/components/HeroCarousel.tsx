@@ -40,7 +40,7 @@ const HeroCarousel = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden">
+    <div className="relative w-full h-[350px] md:h-[350px] overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -62,9 +62,9 @@ const HeroCarousel = () => {
                   <p className="text-lg md:text-xl mb-8 text-muted-foreground">
                     {slide.description}
                   </p>
-                  <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  {/* <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90">
                     {slide.cta}
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>
@@ -95,7 +95,7 @@ const HeroCarousel = () => {
             onClick={() => setCurrentSlide(index)}
             className={`w-2 h-2 rounded-full transition-all ${
               index === currentSlide
-                ? "bg-primary w-8"
+                ? "bg-foreground w-8"
                 : "bg-card/50 backdrop-blur-sm hover:bg-card/80"
             }`}
             aria-label={`Go to slide ${index + 1}`}

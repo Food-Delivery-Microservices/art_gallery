@@ -17,12 +17,12 @@ const CategoryFilters = () => {
   return (
     <div className="w-full bg-muted/30 border-y border-border">
       <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-5 justify-center">
           {categories.map((category) => (
             <Button
               key={category}
               variant="outline"
-              className="rounded-full bg-background hover:bg-accent cursor-default"
+              className="rounded-none bg-background hover:bg-background cursor-default"
             >
               {category}
             </Button>

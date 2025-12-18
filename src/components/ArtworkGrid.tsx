@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { artworkApi } from "@/services/api.service";
+import { useCart } from "@/context/CartContext";
+import { favoritesService } from "@/services/favorites.service";
+import { useToast } from "@/hooks/use-toast";
 
 interface ArtworkItem {
   id: string;
@@ -18,9 +21,67 @@ interface ArtworkItem {
 const ArtworkGrid = () => {
   const rupee = "₹";
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   const [artworks, setArtworks] = useState<ArtworkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Load favorites
+  useEffect(() => {
+    const loadedFavorites = favoritesService.getAll();
+    console.log(loadedFavorites)
+    setFavorites(new Set(loadedFavorites.map((f: any) => f.id.toString())));
+  }, []);
+
+  const toggleFavorite = (e: React.MouseEvent, artwork: ArtworkItem) => {
+    e.stopPropagation();
+    const isFavorited = favorites.has(artwork.id);
+    
+    if (isFavorited) {
+      favoritesService.remove(parseInt(artwork.id));
+      setFavorites(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(artwork.id);
+        return newSet;
+      });
+      toast({
+        title: "Removed from favorites",
+        description: `${artwork.title} has been removed from your favorites`,
+      });
+    } else {
+      favoritesService.add({
+        id: parseInt(artwork.id),
+        title: artwork.title,
+        artist: "Artist Name",
+        price: `${rupee}${artwork.price.toLocaleString('en-IN')}`,
+        image: artwork.thumbnail_url || artwork.image_url,
+        category: "Art",
+      });
+      setFavorites(prev => new Set(prev).add(artwork.id));
+      toast({
+        title: "Added to favorites",
+        description: `${artwork.title} has been added to your favorites`,
+      });
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent, artwork: ArtworkItem) => {
+    e.stopPropagation();
+    addToCart({
+      id: parseInt(artwork.id),
+      title: artwork.title,
+      artist: "Artist Name",
+      price: `${rupee}${artwork.price.toLocaleString('en-IN')}`,
+      image: artwork.thumbnail_url || artwork.image_url,
+      category: "Art",
+    } as any);
+    toast({
+      title: "Added to cart",
+      description: `${artwork.title} has been added to your cart`,
+    });
+  };
 
   useEffect(() => {
     const fetchArtworks = async () => {
@@ -75,56 +136,74 @@ const ArtworkGrid = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {artworks.map((artwork) => (
-            <Card
+            <div
               key={artwork.id}
-              className="group overflow-hidden border border-border hover:shadow-xl transition-all duration-300 cursor-pointer"
-              onClick={() => navigate(`/artwork/${artwork.id}`)}
+              className="group"
             >
-              <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+              {/* Image Container */}
+              <div
+                className="relative aspect-[3/4] overflow-hidden bg-muted mb-3 border border-border/40 rounded-sm cursor-pointer"
+                onClick={() => navigate(`/artwork/${artwork.id}`)}
+              >
                 <img
                   src={artwork.thumbnail_url || artwork.image_url}
                   alt={artwork.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="absolute top-3 right-3 bg-card/80 backdrop-blur-sm hover:bg-card opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Heart className="w-5 h-5" />
-                </Button>
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-foreground mb-1">
-                  {artwork.title}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                  {artwork.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-primary">{rupee}{artwork.price}</span>
+                
+                {/* Action Buttons - appear on hover */}
+                <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/artwork/${artwork.id}`);
-                    }}
+                    size="icon"
+                    variant="secondary"
+                    className="h-9 w-9 rounded-full bg-white/90 hover:bg-white shadow-md"
+                    onClick={(e) => toggleFavorite(e, artwork)}
                   >
-                    View Details
+                    <Heart
+                      className={`w-4 h-4 ${favorites.has(artwork.id) ? 'fill-current text-red-500' : 'text-gray-700'}`}
+                    />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-9 w-9 rounded-full bg-white/90 hover:bg-white shadow-md"
+                    onClick={(e) => handleAddToCart(e, artwork)}
+                  >
+                    <ShoppingCart className="w-4 h-4 text-gray-700" />
                   </Button>
                 </div>
               </div>
-            </Card>
+
+              {/* Artwork Details */}
+              <div className="space-y-1">
+                {/* Title */}
+                <h3
+                  className="text-base font-medium text-foreground hover:text-foreground/80 transition-colors line-clamp-1 cursor-pointer"
+                  onClick={() => navigate(`/artwork/${artwork.id}`)}
+                >
+                  {artwork.title}
+                </h3>
+                
+                {/* Description - subtle and minimal */}
+                <p className="text-sm text-muted-foreground line-clamp-1">
+                  {artwork.description}
+                </p>
+                
+                {/* Price */}
+                <p className="text-base font-semibold text-foreground pt-1">
+                  {rupee}{artwork.price.toLocaleString('en-IN')}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <Button size="lg" variant="outline">
+          {/* <Button size="lg" variant="outline">
             Load More Artworks
-          </Button>
+          </Button> */}
         </div>
       </div>
     </section>
