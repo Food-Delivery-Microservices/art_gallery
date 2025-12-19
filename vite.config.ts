@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig({
-  base: "/art_gallery", // 👈 important for GitHub Pages
+  base: "/", // 👈 Changed for Cloudflare Pages deployment
   server: {
     host: "::",
     port: 8080,
