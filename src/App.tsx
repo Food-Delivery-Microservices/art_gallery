@@ -28,7 +28,7 @@ const App = () => (
         <CartProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter basename="/art_gallery">
+          <BrowserRouter basename="/">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/artwork/:id" element={<ArtworkDetail />} />
